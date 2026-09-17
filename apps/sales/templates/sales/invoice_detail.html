@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block title %}Factura {{ invoice.number|default:"(borrador)" }} - NexoERP{% endblock %}
+{% block content %}
+<h1>Factura {{ invoice.number|default:"(borrador)" }}</h1>
+<table>
+    <tr><th>Partner</th><td>{{ invoice.partner.name }}</td></tr>
+    <tr><th>Estado</th><td>{{ invoice.get_status_display }}</td></tr>
+    <tr><th>Fecha de emisión</th><td>{{ invoice.issue_date|default:"—" }}</td></tr>
+    <tr><th>Fecha de vencimiento</th><td>{{ invoice.due_date|default:"—" }}</td></tr>
+    <tr><th>Subtotal</th><td>{{ invoice.subtotal }}</td></tr>
+    <tr><th>Impuestos</th><td>{{ invoice.tax_total }}</td></tr>
+    <tr><th>Total</th><td>{{ invoice.total }}</td></tr>
+</table>
+
+<p>
+    {% if invoice.status == "draft" %}
+        {% if can_write %}
+        <a class="btn" href="{% url 'sales:edit' invoice.pk %}">Editar</a>
+        <form method="post" action="{% url 'sales:issue' invoice.pk %}" style="display:inline">
+            {% csrf_token %}
+            <button class="btn" type="submit">Emitir</button>
+        </form>
+        {% endif %}
+    {% elif invoice.status == "issued" %}
+        {% if can_void %}
+        <form method="post" action="{% url 'sales:void' invoice.pk %}" style="display:inline">
+            {% csrf_token %}
+            <button class="btn" type="submit">Anular</button>
+        </form>
+        {% endif %}
+    {% endif %}
+</p>
+
+<h2>Líneas</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Producto</th>
+            <th>Cantidad</th>
+            <th>Precio unitario</th>
+            <th>Impuesto</th>
+            <th>Subtotal</th>
+            <th>Impuesto ($)</th>
+            <th>Total</th>
+            {% if invoice.status == "draft" and can_write %}<th></th>{% endif %}
+        </tr>
+    </thead>
+    <tbody>
+        {% for line in invoice.lines.all %}
+        <tr>
+            <td>{{ line.product.name }}</td>
+            <td>{{ line.quantity }}</td>
+            <td>{{ line.unit_price }}</td>
+            <td>{{ line.tax_rate }}%</td>
+            <td>{{ line.subtotal }}</td>
+            <td>{{ line.tax_amount }}</td>
+            <td>{{ line.total }}</td>
+            {% if invoice.status == "draft" and can_write %}
+            <td>
+                <a href="{% url 'sales:line-edit' invoice.pk line.pk %}">Editar</a>
+                <form method="post" action="{% url 'sales:line-delete' invoice.pk line.pk %}" style="display:inline">
+                    {% csrf_token %}
+                    <button class="btn" type="submit">Eliminar</button>
+                </form>
+            </td>
+            {% endif %}
+        </tr>
+        {% empty %}
+        <tr><td colspan="8">Sin líneas todavía.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% if invoice.status == "draft" and can_write %}
+<h3>Agregar línea</h3>
+<form method="post" action="{% url 'sales:line-add' invoice.pk %}">
+    {% csrf_token %}
+    {{ line_form.as_p }}
+    <button class="btn" type="submit">Agregar</button>
+</form>
+{% endif %}
+{% endblock %}

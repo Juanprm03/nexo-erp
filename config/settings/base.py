@@ -32,6 +32,8 @@ LOCAL_APPS = [
     "apps.core",
     "apps.accounts",
     "apps.companies",
+    "apps.partners",
+    "apps.catalog",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -96,6 +98,10 @@ STATICFILES_DIRS = [BASE_DIR / "static"]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "partners:list"
+LOGOUT_REDIRECT_URL = "login"
 
 # --- Frontend web (Django templates): sesión + CSRF es la vía principal. ---
 SESSION_COOKIE_HTTPONLY = True

@@ -17,8 +17,19 @@ class CompanyAccessDenied(PermissionDenied):
 
 
 def get_active_membership(user, company):
-    """Return the user's active membership in `company`, or None."""
-    if company is None or not getattr(user, "is_authenticated", False):
+    """Return the user's active membership in `company`, or None.
+
+    Also rejects a deactivated Company: ActiveCompanyMiddleware already
+    re-checks `company.is_active` on every request and drops the session
+    key if it's False, so activation must enforce the same rule up front
+    — otherwise `activate_company()` would "succeed" only to have the
+    very next request silently revert it.
+    """
+    if (
+        company is None
+        or not company.is_active
+        or not getattr(user, "is_authenticated", False)
+    ):
         return None
     return (
         CompanyMembership.objects.filter(user=user, company=company, is_active=True)

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Terceros - NexoERP{% endblock %}
+{% block content %}
+<div class="actions">
+    <h1>Terceros</h1>
+    <a class="btn" href="{% url 'partners:create' %}">Nuevo tercero</a>
+</div>
+<table>
+    <thead>
+        <tr>
+            <th>Nombre</th>
+            <th>Tax ID</th>
+            <th>Cliente</th>
+            <th>Proveedor</th>
+            <th>Activo</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for partner in partners %}
+        <tr>
+            <td><a href="{% url 'partners:detail' partner.pk %}">{{ partner.name }}</a></td>
+            <td>{{ partner.tax_id|default:"—" }}</td>
+            <td>{{ partner.is_customer|yesno:"Sí,No" }}</td>
+            <td>{{ partner.is_supplier|yesno:"Sí,No" }}</td>
+            <td>{{ partner.is_active|yesno:"Sí,No" }}</td>
+            <td><a href="{% url 'partners:edit' partner.pk %}">Editar</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6">No hay terceros registrados en esta empresa.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+<p>
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Anterior</a>{% endif %}
+    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Siguiente</a>{% endif %}
+</p>
+{% endif %}
+{% endblock %}

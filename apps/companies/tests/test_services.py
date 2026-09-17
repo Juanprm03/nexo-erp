@@ -57,6 +57,22 @@ def test_inactive_membership_cannot_activate_company():
     assert ACTIVE_COMPANY_SESSION_KEY not in request.session
 
 
+def test_inactive_company_cannot_be_activated():
+    """Regression: activation must reject a deactivated Company itself,
+    not just a deactivated membership — otherwise it "succeeds" only for
+    ActiveCompanyMiddleware to silently revert it on the very next
+    request, since the middleware already re-checks company.is_active."""
+    user = UserFactory()
+    company = CompanyFactory(is_active=False)
+    CompanyMembershipFactory(user=user, company=company, is_active=True)
+    request = _request()
+
+    with pytest.raises(CompanyAccessDenied):
+        activate_company(request, user, company)
+
+    assert ACTIVE_COMPANY_SESSION_KEY not in request.session
+
+
 def test_get_active_membership_returns_none_for_anonymous_or_missing_company():
     user = UserFactory()
 

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Cambiar empresa - NexoERP{% endblock %}
+{% block content %}
+<h1>Selecciona empresa activa</h1>
+{% if memberships %}
+<ul>
+    {% for membership in memberships %}
+    <li>
+        <form method="post" style="display:inline">
+            {% csrf_token %}
+            <input type="hidden" name="company_id" value="{{ membership.company_id }}">
+            <button class="btn" type="submit">
+                {{ membership.company.name }} ({{ membership.get_role_display }})
+            </button>
+        </form>
+    </li>
+    {% endfor %}
+</ul>
+{% else %}
+<p>No perteneces a ninguna empresa activa.</p>
+{% endif %}
+{% endblock %}

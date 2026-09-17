@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} - NexoERP{% endblock %}
+{% block content %}
+<h1>{{ product.name }}</h1>
+<table>
+    <tr><th>SKU</th><td>{{ product.sku }}</td></tr>
+    <tr><th>Tipo</th><td>{{ product.get_type_display }}</td></tr>
+    <tr><th>Precio unitario</th><td>{{ product.unit_price }}</td></tr>
+    <tr><th>Impuesto</th><td>{{ product.tax_rate }}%</td></tr>
+    <tr><th>Activo</th><td>{{ product.is_active|yesno:"Sí,No" }}</td></tr>
+</table>
+<p>
+    <a class="btn" href="{% url 'catalog:edit' product.pk %}">Editar</a>
+    {% if product.is_active %}
+    <form method="post" action="{% url 'catalog:deactivate' product.pk %}" style="display:inline">
+        {% csrf_token %}
+        <button class="btn" type="submit">Desactivar</button>
+    </form>
+    {% endif %}
+</p>
+{% endblock %}

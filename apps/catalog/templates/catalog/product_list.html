@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Productos - NexoERP{% endblock %}
+{% block content %}
+<div class="actions">
+    <h1>Productos</h1>
+    <a class="btn" href="{% url 'catalog:create' %}">Nuevo producto</a>
+</div>
+<table>
+    <thead>
+        <tr>
+            <th>SKU</th>
+            <th>Nombre</th>
+            <th>Tipo</th>
+            <th>Precio unitario</th>
+            <th>Impuesto</th>
+            <th>Activo</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for product in products %}
+        <tr>
+            <td><a href="{% url 'catalog:detail' product.pk %}">{{ product.sku }}</a></td>
+            <td>{{ product.name }}</td>
+            <td>{{ product.get_type_display }}</td>
+            <td>{{ product.unit_price }}</td>
+            <td>{{ product.tax_rate }}%</td>
+            <td>{{ product.is_active|yesno:"Sí,No" }}</td>
+            <td><a href="{% url 'catalog:edit' product.pk %}">Editar</a></td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="7">No hay productos registrados en esta empresa.</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% if is_paginated %}
+<p>
+    {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Anterior</a>{% endif %}
+    Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+    {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Siguiente</a>{% endif %}
+</p>
+{% endif %}
+{% endblock %}

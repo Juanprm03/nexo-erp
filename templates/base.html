@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}NexoERP{% endblock %}</title>
+    <style>
+        body { font-family: sans-serif; margin: 0; color: #1a1a1a; }
+        header { background: #1f2937; color: #fff; padding: 0.75rem 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        header a { color: #fff; text-decoration: none; margin-right: 1rem; }
+        main { padding: 1.5rem; max-width: 960px; margin: 0 auto; }
+        table { border-collapse: collapse; width: 100%; margin-top: 1rem; }
+        th, td { border: 1px solid #ddd; padding: 0.5rem; text-align: left; }
+        th { background: #f3f4f6; }
+        .messages { list-style: none; padding: 0; }
+        .messages li { padding: 0.5rem 1rem; margin-bottom: 0.5rem; border-radius: 4px; }
+        .messages .success { background: #d1fae5; color: #065f46; }
+        .messages .error { background: #fee2e2; color: #991b1b; }
+        .btn { display: inline-block; padding: 0.4rem 0.9rem; background: #2563eb; color: #fff; text-decoration: none; border-radius: 4px; border: none; cursor: pointer; }
+        form p { margin: 0.5rem 0; }
+        .actions { margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <a href="{% url 'partners:list' %}">Partners</a>
+            <a href="{% url 'catalog:list' %}">Catalog</a>
+        </div>
+        <div>
+            {% if request.user.is_authenticated %}
+                {% if request.active_company %}
+                    <span>Empresa: <strong>{{ request.active_company.name }}</strong></span>
+                {% else %}
+                    <span>Sin empresa activa</span>
+                {% endif %}
+                <a href="{% url 'companies:switch' %}">Cambiar empresa</a>
+                <a href="{% url 'logout' %}">Salir ({{ request.user.email }})</a>
+            {% else %}
+                <a href="{% url 'login' %}">Ingresar</a>
+            {% endif %}
+        </div>
+    </header>
+    <main>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li class="{{ message.tags }}">{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
+        {% block content %}{% endblock %}
+    </main>
+</body>
+</html>

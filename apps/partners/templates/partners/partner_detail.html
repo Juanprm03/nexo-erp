@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}{{ partner.name }} - NexoERP{% endblock %}
+{% block content %}
+<h1>{{ partner.name }}</h1>
+<table>
+    <tr><th>Tax ID</th><td>{{ partner.tax_id|default:"—" }}</td></tr>
+    <tr><th>Cliente</th><td>{{ partner.is_customer|yesno:"Sí,No" }}</td></tr>
+    <tr><th>Proveedor</th><td>{{ partner.is_supplier|yesno:"Sí,No" }}</td></tr>
+    <tr><th>Email</th><td>{{ partner.email|default:"—" }}</td></tr>
+    <tr><th>Teléfono</th><td>{{ partner.phone|default:"—" }}</td></tr>
+    <tr><th>Dirección</th><td>{{ partner.address|default:"—" }}</td></tr>
+    <tr><th>Activo</th><td>{{ partner.is_active|yesno:"Sí,No" }}</td></tr>
+</table>
+<p>
+    <a class="btn" href="{% url 'partners:edit' partner.pk %}">Editar</a>
+    {% if partner.is_active %}
+    <form method="post" action="{% url 'partners:deactivate' partner.pk %}" style="display:inline">
+        {% csrf_token %}
+        <button class="btn" type="submit">Desactivar</button>
+    </form>
+    {% endif %}
+</p>
+{% endblock %}

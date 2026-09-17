@@ -46,3 +46,25 @@ class CompanyScopedQuerysetMixin:
         if company is None:
             return queryset.none()
         return queryset.for_company(company)
+
+
+class CompanyScopedFormMixin(CompanyScopedQuerysetMixin):
+    """For CreateView/UpdateView over a CompanyScopedModel.
+
+    Found while wiring the first real template CRUD (partners): a plain
+    ModelForm runs `instance.full_clean()` *before* `form_valid()` is ever
+    called, so stamping `company` in `form_valid()` is too late for any
+    model-level validation in `clean()` that depends on it (e.g. a
+    conditional-unique check) — it would validate with `company_id=None`
+    and only fail later as a raw IntegrityError on save. Instead this
+    pre-stamps `company` on a fresh instance via `get_form_kwargs()`,
+    before the form ever validates. No-op on UpdateView, where the
+    instance already has its company from the scoped queryset.
+    """
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if kwargs.get("instance") is None:
+            model = getattr(self, "model", None) or self.get_queryset().model
+            kwargs["instance"] = model(company=self.request.active_company)
+        return kwargs

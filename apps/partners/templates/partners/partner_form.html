@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{% if object %}Editar{% else %}Nuevo{% endif %} tercero - NexoERP{% endblock %}
+{% block content %}
+<h1>{% if object %}Editar{% else %}Nuevo{% endif %} tercero</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn" type="submit">Guardar</button>
+    <a href="{% url 'partners:list' %}">Cancelar</a>
+</form>
+{% endblock %}

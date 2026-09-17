@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}{% if invoice %}Editar{% else %}Nueva{% endif %} factura - NexoERP{% endblock %}
+{% block content %}
+<h1>{% if invoice %}Editar factura {{ invoice.number|default:"(borrador)" }}{% else %}Nueva factura{% endif %}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button class="btn" type="submit">Guardar</button>
+    <a href="{% if invoice %}{% url 'sales:detail' invoice.pk %}{% else %}{% url 'sales:list' %}{% endif %}">Cancelar</a>
+</form>
+{% endblock %}

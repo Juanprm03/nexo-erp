@@ -45,7 +45,12 @@ class IsSameCompanyObject(BasePermission):
         return company is not None and obj.company_id == company.id
 
 
-class _BaseCompanyRolePermission(BasePermission):
+class BaseCompanyRolePermission(BasePermission):
+    """Base for a fixed-role permission check. Public (not `_`-prefixed)
+    so other apps' module-specific role combos (e.g. apps/sales/permissions.py
+    for "who can void an invoice") can extend it instead of re-implementing
+    the same has_permission() logic."""
+
     allowed_roles: tuple[str, ...] = ()
 
     def has_permission(self, request, view):
@@ -55,31 +60,31 @@ class _BaseCompanyRolePermission(BasePermission):
         return user_has_role(request.user, company, *self.allowed_roles)
 
 
-class IsCompanyMember(_BaseCompanyRolePermission):
+class IsCompanyMember(BaseCompanyRolePermission):
     """Any active role in the active company (baseline: at least readonly)."""
 
     allowed_roles = tuple(MembershipRole.values)
 
 
-class IsCompanyOwner(_BaseCompanyRolePermission):
+class IsCompanyOwner(BaseCompanyRolePermission):
     """Reserved for actions exclusive to the owner role (none defined yet)."""
 
     allowed_roles = (MembershipRole.OWNER,)
 
 
-class IsCompanyAdmin(_BaseCompanyRolePermission):
+class IsCompanyAdmin(BaseCompanyRolePermission):
     """General company administration: owner and admin."""
 
     allowed_roles = MANAGEMENT_ROLES
 
 
-class IsCompanyAccountant(_BaseCompanyRolePermission):
+class IsCompanyAccountant(BaseCompanyRolePermission):
     allowed_roles = (*MANAGEMENT_ROLES, MembershipRole.ACCOUNTANT)
 
 
-class IsCompanySales(_BaseCompanyRolePermission):
+class IsCompanySales(BaseCompanyRolePermission):
     allowed_roles = (*MANAGEMENT_ROLES, MembershipRole.SALES)
 
 
-class IsCompanyPurchasing(_BaseCompanyRolePermission):
+class IsCompanyPurchasing(BaseCompanyRolePermission):
     allowed_roles = (*MANAGEMENT_ROLES, MembershipRole.PURCHASING)
